@@ -8,12 +8,14 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  isVerified: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
+  isVerified: false,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -37,8 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const isVerified = user ? (user.emailVerified || user.providerData.some(p => p.providerId === 'google.com')) : false;
+
   return (
-    <AuthContext.Provider value={{ user, loading, signOut }}>
+    <AuthContext.Provider value={{ user, loading, signOut, isVerified }}>
       {children}
     </AuthContext.Provider>
   );

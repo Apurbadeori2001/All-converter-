@@ -3,9 +3,40 @@
 import { useState } from "react";
 import { Navbar } from "./navbar";
 import { Sidebar } from "./sidebar";
+import { useAuth } from "@/lib/AuthContext";
+import { VerificationScreen } from "../auth/VerificationScreen";
+import { AuthModal } from "../auth/AuthModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const { user, loading, isVerified, signOut } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full bg-[#09090b] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // If user is logged in but not verified, show verification screen instead of content
+  if (user && !isVerified) {
+    return (
+      <div className="h-screen w-full bg-[#09090b] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-zinc-950 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+          <VerificationScreen 
+            email={user.email || ""} 
+            onLoginClick={async () => {
+              await signOut();
+              setAuthModalOpen(true);
+            }} 
+          />
+          <AuthModal isOpen={authModalOpen} onClose={() => setAuthModalOpen(false)} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-full bg-[#09090b] text-zinc-100 font-sans overflow-hidden flex flex-col relative selection:bg-indigo-500/30">

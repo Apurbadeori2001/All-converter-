@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "Conversion": {
+      "title": "Conversion",
+      "description": "Metadata for a file conversion performed by a user.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The unique ID of the user who performed the conversion."
+        },
+        "originalFileName": {
+          "type": "string",
+          "description": "The name of the file before conversion."
+        },
+        "convertedFileName": {
+          "type": "string",
+          "description": "The name of the resulting converted file."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "The category of the file (e.g., Image, PDF, Video)."
+        },
+        "fileSize": {
+          "type": "number",
+          "description": "The size of the original file in bytes."
+        },
+        "fromFormat": {
+          "type": "string",
+          "description": "The source format extension."
+        },
+        "toFormat": {
+          "type": "string",
+          "description": "The target format extension."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the conversion occurred."
+        }
+      },
+      "required": [
+        "userId",
+        "originalFileName",
+        "convertedFileName",
+        "fileType",
+        "fileSize",
+        "timestamp"
+      ]
+    }
+  },
+  "firestore": {
+    "conversions/{conversionId}": {
+      "schema": "Conversion",
+      "description": "Collection of file conversion records."
+    }
+  }
+}

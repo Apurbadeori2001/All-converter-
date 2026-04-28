@@ -1,0 +1,39 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Conversion History Rules
+    match /conversions/{conversionId} {
+      // Helper for conversion validation
+      function isValidConversion(data) {
+        return data.keys().hasAll(['userId', 'originalFileName', 'convertedFileName', 'fileType', 'fileSize', 'timestamp']) &&
+               data.userId == request.auth.uid &&
+               data.originalFileName is string && data.originalFileName.size() <= 256 &&
+               data.convertedFileName is string && data.convertedFileName.size() <= 256 &&
+               data.fileType is string &&
+               data.fileSize is number &&
+               data.timestamp == request.time;
+      }
+
+      // Allow users to list their own conversions
+      allow list: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Allow users to read their own conversion documents
+      allow get: if request.auth != null && resource.data.userId == request.auth.uid;
+      
+      // Allow users to create their own conversion records
+      allow create: if request.auth != null && isValidConversion(request.resource.data);
+      
+      // Conversions are immutable once created (optional logic, but good for history)
+      allow update: if false;
+      
+      // Allow users to delete their own history
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}
